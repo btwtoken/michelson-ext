@@ -1,0 +1,36 @@
+@lib.tzlib
+
+parameter (pair key nat);
+storage (pair (map key nat)    # balance map
+              (pair nat    # total supply
+                    (pair nat    # decimals
+                          (pair string    # name
+                                string))));    # symbol
+return nat;    # 0: success; 1: no such account; 2: balance insufficient
+code 
+  { @unpair; @unpair; DIIP { @unpair };
+    @@get_source_key;
+    dup[0 : 3];
+    @@get_source_balance 
+      { @fail_with 1 }
+      { dup[0 : 3];
+        @compare_source_balance_with_target_amount
+          { dup[2 : 4];
+            @@get_target_balance 
+              { PUSH nat 0 } 
+              {};
+            dup[1 : 4];
+            @@calc_new_source_balance;
+            dup[1 : 5];
+            @@calc_new_target_balance;
+            dup[5 : 0 : 7];
+            @@update_target_balance;
+            dup[5 : 2 : 0];
+            @@update_source_balance;
+            dup[0 : 10]; PAIR;
+            DIP { DROP; DROP; DROP; 
+                  DROP; DROP; DROP; 
+                  DROP; DROP; DROP; 
+                  DROP; DROP };
+            @success }
+          { DROP; @fail_with 2 } } }

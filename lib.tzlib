@@ -1,7 +1,15 @@
 unpair = DUP; CAR; DIP { CDR };;
 
-map_get = ;;
+get_source_key = SOURCE unit unit; MANAGER;;
 
-compare_val method we = @method; @we;;
+get_source_balance|get_target_balance = GET; IF_NONE;;
 
-get_source_key a b c = DUP; DIP { ADD }; @a; @b; @c ;;
+fail_with nat = DROP; DROP; DROP; PAIR; PUSH nat @nat; PAIR;;
+success = PUSH nat 0; PAIR;;
+
+compare_source_balance_with_target_amount = IFCMPGE;;
+
+calc_new_source_balance = SUB; ABS; SOME;;
+calc_new_target_balance = ADD; SOME;;
+
+update_target_balance|update_source_balance = UPDATE;;
