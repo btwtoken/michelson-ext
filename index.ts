@@ -14,11 +14,12 @@ const main = () => {
   const libs = tz_raw.slice(0, parameter_index).match(/@[\w\.]+/g)
   const libs_raw = libs ? libs.map(x => readFileSync(x.slice(1)).toString().trim()) : []
 
+  const tz_raw_content = tz_raw.slice(parameter_index)
   const method_map = parse_libs(libs_raw)
-  const method_result = apply_methods(tz_raw.slice(parameter_index), method_map)
-  const dup_expand_result = dup_expand(method_result)
+  const dup_expand_result = dup_expand(tz_raw_content)
+  const method_result = apply_methods(dup_expand_result, method_map)
   
-  const result = dup_expand_result
+  const result = method_result
 
   const output_name = file_path.replace('.tzext', '.miext.tz')
   writeFile(output_name, result, (err) => {
@@ -27,18 +28,25 @@ const main = () => {
 }
 
 const dup_expand = (content : string) => {
-  return content.replace(/dup\[\s*?\d+?\s*?(:\s*?\d+?\s*?)*?\]/g, _raw => {
-    const raw = _raw.slice(4, -1)
-    const nums = raw.split(/:/g).map(x => parseInt(x.trim()))
-    nums.reverse()
-
-    const result : string[] = []
-    nums.forEach((x, i) => {
-      result.push('D' + 'U'.repeat(x + i + 1) + 'P')
-    })
-
-    return result.join(';')
+  return content.replace(/(dup|@+?\w+)\[\s*?\d+?\s*?(:\s*?\d+?\s*?)*?\]/g, raw => {
+    if (raw[0] === '@') {
+      const reversed = raw.split('[').reverse()
+      reversed[0] = dup_replace(reversed[0].slice(0, -1))
+      return reversed.join('; ')
+    } else 
+      return dup_replace(raw.slice(4, -1))
   })
+}
+const dup_replace = (stack_str : string) => {
+  const nums = stack_str.split(/:/g).map(x => parseInt(x.trim()))
+  nums.reverse()
+
+  const result : string[] = []
+  nums.forEach((x, i) => {
+    result.push('D' + 'U'.repeat(x + i + 1) + 'P')
+  })
+
+  return result.join(';')
 }
 
 const apply_methods = (tz_raw : string, method_map : MethodMap) => {

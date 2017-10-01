@@ -10,26 +10,35 @@ var main = function () {
     var parameter_index = tz_raw.indexOf('parameter');
     var libs = tz_raw.slice(0, parameter_index).match(/@[\w\.]+/g);
     var libs_raw = libs ? libs.map(function (x) { return fs_1.readFileSync(x.slice(1)).toString().trim(); }) : [];
+    var tz_raw_content = tz_raw.slice(parameter_index);
     var method_map = parse_libs(libs_raw);
-    var method_result = apply_methods(tz_raw.slice(parameter_index), method_map);
-    var dup_expand_result = dup_expand(method_result);
-    var result = dup_expand_result;
+    var dup_expand_result = dup_expand(tz_raw_content);
+    var method_result = apply_methods(dup_expand_result, method_map);
+    var result = method_result;
     var output_name = file_path.replace('.tzext', '.miext.tz');
     fs_1.writeFile(output_name, result, function (err) {
         console.log(err || output_name + ' written');
     });
 };
 var dup_expand = function (content) {
-    return content.replace(/dup\[\s*?\d+?\s*?(:\s*?\d+?\s*?)*?\]/g, function (_raw) {
-        var raw = _raw.slice(4, -1);
-        var nums = raw.split(/:/g).map(function (x) { return parseInt(x.trim()); });
-        nums.reverse();
-        var result = [];
-        nums.forEach(function (x, i) {
-            result.push('D' + 'U'.repeat(x + i + 1) + 'P');
-        });
-        return result.join(';');
+    return content.replace(/(dup|@+?\w+)\[\s*?\d+?\s*?(:\s*?\d+?\s*?)*?\]/g, function (raw) {
+        if (raw[0] === '@') {
+            var reversed = raw.split('[').reverse();
+            reversed[0] = dup_replace(reversed[0].slice(0, -1));
+            return reversed.join('; ');
+        }
+        else
+            return dup_replace(raw.slice(4, -1));
     });
+};
+var dup_replace = function (stack_str) {
+    var nums = stack_str.split(/:/g).map(function (x) { return parseInt(x.trim()); });
+    nums.reverse();
+    var result = [];
+    nums.forEach(function (x, i) {
+        result.push('D' + 'U'.repeat(x + i + 1) + 'P');
+    });
+    return result.join(';');
 };
 var apply_methods = function (tz_raw, method_map) {
     return tz_raw.replace(/@+?[\w\ ]+?[};\r\n]/g, function (_raw) {
