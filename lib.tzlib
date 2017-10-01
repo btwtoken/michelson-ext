@@ -1,0 +1,7 @@
+unpair = DUP; CAR; DIP { CDR };;
+
+map_get = ;;
+
+compare_val method we = @method; @we;;
+
+get_source_key a b c = DUP; DIP { ADD }; @a; @b; @c ;;

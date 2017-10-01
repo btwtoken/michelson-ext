@@ -1,0 +1,61 @@
+@lib.tzlib
+
+parameter (pair key nat);
+storage (pair (map key nat)    # balance map
+              (pair nat    # total supply
+                    (pair nat    # decimals
+                          (pair string    # name
+                                string))));    # symbol
+return nat;    # 0: success; 1: no such account; 2: balance insufficient
+code { @get_source_key df ge
+       @get_balance_of_source_key 
+         { compare_balance
+             { get_balance_of_target_key 
+                 { }
+                 { PUSH nat 0 };
+               calc_new_balance_of_source_key;
+               calc_new_balance_of_target_key;
+               update_new_balance_of_target_key;
+               update_new_balance_of_source_key;
+               success_with 0 }
+             { fail_with 2 } } 
+         { fail_with 1 };
+  
+       unpair; DIP { unpair };
+       [3 4; 5 9;];
+       # get source key
+       SOURCE unit unit;
+       MANAGER;
+       map_get; 
+         { # no source key account
+           DROP; DROP; PAIR;
+           PUSH nat 1 } 
+         { # check if balance is sufficient
+           DIP { DIP { SWAP }; SWAP; CDR };
+           # preserve balance
+           DUP; DIP { SWAP };
+           IFCMPGE { # balance is sufficient
+                     DIIP { SWAP;
+                           DUP; 
+                           DIIP { DUP };
+                           DIP { CAR; GET;
+                                 IF_NONE { PUSH nat 0 } {} } };
+                     DIIP { DUP; DUP; DIIP { SWAP } };
+                     # calculation
+                     DIP { SWAP; CDR; };
+                     SUB; ABS; SOME; SWAP;
+                     DIIP { CDR; ADD; SOME; SWAP; CAR };
+                     # update balance map
+                     DIIP { DIP { SWAP }; SWAP };
+                     UPDATE;
+                     SWAP; DIP { SWAP };
+                     UPDATE;
+                     # replace new balance map
+                     DIP { CDR };
+                     PAIR;
+                     # return success
+                     PUSH nat 0 } 
+                   { # balance is insufficient
+                     DROP; DROP; DROP; DROP;
+                     PUSH nat 2 } };
+       PAIR };

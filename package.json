@@ -1,0 +1,26 @@
+{
+  "name": "michelson-ext",
+  "version": "1.0.0",
+  "description": "An extension for writing michelson",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/catsigma/michelson-ext.git"
+  },
+  "keywords": [
+    "michelson"
+  ],
+  "author": "catsigma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/catsigma/michelson-ext/issues"
+  },
+  "homepage": "https://github.com/catsigma/michelson-ext#readme",
+  "dependencies": {
+    "@types/node": "^8.0.31"
+  }
+}
