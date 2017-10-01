@@ -41,8 +41,8 @@ var dup_replace = function (stack_str) {
     return result.join(';');
 };
 var apply_methods = function (tz_raw, method_map) {
-    return tz_raw.replace(/@+?[\w\ ]+?[};\r\n]/g, function (_raw) {
-        var raw = _raw.slice(0, -1).replace(/^@+/g, '').trim();
+    return tz_raw.replace(/(@+?|`)[\w\ ]+?[};\r\n]/g, function (_raw) {
+        var raw = _raw.slice(1, -1).replace(/^@+/g, '').trim();
         var _a = raw.split(/\s+/g), identity = _a[0], args = _a.slice(1);
         var method = method_map[identity];
         if (!method)

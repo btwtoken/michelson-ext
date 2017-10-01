@@ -8,10 +8,10 @@ storage (pair (map key nat)    # balance map
                                 string))));    # symbol
 return nat;    # 0: success; 1: no such account; 2: balance insufficient
 code 
-  { @unpair; @unpair; DIIP { @unpair };
+  { `unpair; `unpair; DIIP { `unpair };
     @@get_source_key;
     @@get_source_balance[0 : 3]
-      { @fail_with 1 }
+      { `fail_with 1 }
       { @compare_source_balance_with_target_amount[0 : 3]
           { @@get_target_balance[2 : 4]
               { PUSH nat 0 } 
@@ -25,5 +25,5 @@ code
                   DROP; DROP; DROP; 
                   DROP; DROP; DROP; 
                   DROP; DROP };
-            @success }
-          { DROP; @fail_with 2 } } }
+            `success }
+          { DROP; `fail_with 2 } } }

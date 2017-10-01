@@ -50,8 +50,8 @@ const dup_replace = (stack_str : string) => {
 }
 
 const apply_methods = (tz_raw : string, method_map : MethodMap) => {
-  return tz_raw.replace(/@+?[\w\ ]+?[};\r\n]/g, _raw => {
-    const raw = _raw.slice(0, -1).replace(/^@+/g, '').trim()
+  return tz_raw.replace(/(@+?|`)[\w\ ]+?[};\r\n]/g, _raw => {
+    const raw = _raw.slice(1, -1).replace(/^@+/g, '').trim()
     const [identity, ...args] = raw.split(/\s+/g)
     const method = method_map[identity]
     if (!method) return _raw
