@@ -1,5 +1,6 @@
 import { readFileSync, writeFile } from 'fs'
 import { argv } from 'process'
+import * as path from 'path'
 
 type MethodMap = {[_ : string] : {args: string[], definition: string}}
 
@@ -8,11 +9,14 @@ const main = () => {
     return
 
   const file_path = argv[2]
+
+  const file_info = path.parse(file_path)
+
   const tz_raw = readFileSync(file_path).toString().trim()
   const parameter_index = tz_raw.indexOf('parameter')
 
   const libs = tz_raw.slice(0, parameter_index).match(/@[\w\.]+/g)
-  const libs_raw = libs ? libs.map(x => readFileSync(x.slice(1)).toString().trim()) : []
+  const libs_raw = libs ? libs.map(x => readFileSync(file_info.dir + path.sep + x.slice(1)).toString().trim()) : []
 
   const tz_raw_content = tz_raw.slice(parameter_index)
   const method_map = parse_libs(libs_raw)

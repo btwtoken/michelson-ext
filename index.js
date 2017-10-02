@@ -2,14 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var process_1 = require("process");
+var path = require("path");
 var main = function () {
     if (process_1.argv.length < 3)
         return;
     var file_path = process_1.argv[2];
+    var file_info = path.parse(file_path);
     var tz_raw = fs_1.readFileSync(file_path).toString().trim();
     var parameter_index = tz_raw.indexOf('parameter');
     var libs = tz_raw.slice(0, parameter_index).match(/@[\w\.]+/g);
-    var libs_raw = libs ? libs.map(function (x) { return fs_1.readFileSync(x.slice(1)).toString().trim(); }) : [];
+    var libs_raw = libs ? libs.map(function (x) { return fs_1.readFileSync(file_info.dir + path.sep + x.slice(1)).toString().trim(); }) : [];
     var tz_raw_content = tz_raw.slice(parameter_index);
     var method_map = parse_libs(libs_raw);
     var dup_expand_result = dup_expand(tz_raw_content);
